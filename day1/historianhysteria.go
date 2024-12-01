@@ -14,30 +14,20 @@ import (
 func main() {
 	inputLeft := make([]int, 0, 0)
 	inputRight := make([]int, 0, 0)
-	readFromFile(&inputLeft, &inputRight)
-
-	distanceArr := make([]int, 0, len(inputLeft))
+	readAndProcessFromFile(&inputLeft, &inputRight)
 
 	sort.Ints(inputLeft)
 	sort.Ints(inputRight)
 
-	// making an assumption here that both arrays are of same length
-	for i := range inputLeft {
-		distance := inputLeft[i] - inputRight[i]
-		distance = int(math.Abs(float64(distance)))
-		distanceArr = append(distanceArr, distance)
-	}
+	distance := getDistance(inputLeft, inputRight)
 
-	finalDistance := 0
+	fmt.Println("Distance: ", distance)
 
-	for _, distance := range distanceArr {
-		finalDistance += distance
-	}
-
-	fmt.Println("Distance: ", finalDistance)
+	similarityScore := getSimilarity(inputLeft, inputRight)
+	fmt.Println("similarityScore: ", similarityScore)
 }
 
-func readFromFile(leftArr *[]int, rightArr *[]int) {
+func readAndProcessFromFile(inputLeft, inputRight *[]int) {
 	file, err := os.Open("input.txt")
 	if err != nil {
 		panic(err)
@@ -61,17 +51,59 @@ func readFromFile(leftArr *[]int, rightArr *[]int) {
 			panic(err)
 		}
 
-		*leftArr = append(*leftArr, num)
+		*inputLeft = append(*inputLeft, num)
 
 		num, err = strconv.Atoi(lineArr[1])
 		if err != nil {
 			panic(err)
 		}
-		*rightArr = append(*rightArr, num)
+		*inputRight = append(*inputRight, num)
 	}
 
 	// Check for errors during scanning
 	if err := scanner.Err(); err != nil {
 		panic(err)
 	}
+}
+
+func getDistance(inputLeft, inputRight []int) int {
+	distanceArr := make([]int, 0, len(inputLeft))
+
+	for i := range inputLeft {
+		distance := inputLeft[i] - inputRight[i]
+		distance = int(math.Abs(float64(distance)))
+		distanceArr = append(distanceArr, distance)
+	}
+
+	distance := 0
+
+	for _, d := range distanceArr {
+		distance += d
+	}
+
+	return distance
+}
+
+func getSimilarity(inputLeft, inputRight []int) (similarityScore int) {
+	// left list: 3 and right list it is repeated 3 times -> 3*3 = 9
+	similarityMap := make(map[int]int)
+
+	for i := range inputLeft {
+		for j := range inputRight {
+			if inputLeft[i] == inputRight[j] {
+				similarityMap[inputLeft[i]] += 1
+				continue
+			}
+
+			if inputRight[j] > inputLeft[i] {
+				break
+			}
+		}
+	}
+
+	for key, value := range similarityMap {
+		similarityScore += key * value
+	}
+
+	return
 }
