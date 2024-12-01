@@ -40,8 +40,7 @@ func main() {
 func readFromFile(leftArr *[]int, rightArr *[]int) {
 	file, err := os.Open("input.txt")
 	if err != nil {
-		fmt.Printf("Failed to open file: %v\n", err)
-		return
+		panic(err)
 	}
 	defer file.Close()
 
@@ -59,22 +58,20 @@ func readFromFile(leftArr *[]int, rightArr *[]int) {
 		lineArr := strings.Split(line, " ")
 		num, err := strconv.Atoi(lineArr[0])
 		if err != nil {
-			fmt.Printf("Error converting string to int: %v\n", err)
-			return
+			panic(err)
 		}
 
 		*leftArr = append(*leftArr, num)
 
 		num, err = strconv.Atoi(lineArr[1])
 		if err != nil {
-			fmt.Printf("Error converting string to int: %v\n", err)
-			return
+			panic(err)
 		}
 		*rightArr = append(*rightArr, num)
 	}
 
 	// Check for errors during scanning
 	if err := scanner.Err(); err != nil {
-		fmt.Printf("Error while reading file: %v\n", err)
+		panic(err)
 	}
 }
