@@ -1,51 +1,36 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"math"
-	"os"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/shaileshhb/adventofcode/file"
 )
 
 func main() {
-	inputLeft := make([]int, 0, 0)
-	inputRight := make([]int, 0, 0)
-	readAndProcessFromFile(&inputLeft, &inputRight)
+	data := file.ReadFromFile()
+
+	inputLeft := make([]int, 0)
+	inputRight := make([]int, 0)
+	processFileInput(&inputLeft, &inputRight, data)
 
 	sort.Ints(inputLeft)
 	sort.Ints(inputRight)
 
-	distance := getDistance(inputLeft, inputRight)
-
+	distance := getTotalDistance(inputLeft, inputRight)
 	fmt.Println("Distance: ", distance)
 
-	similarityScore := getSimilarity(inputLeft, inputRight)
+	similarityScore := getSimilarityScore(inputLeft, inputRight)
 	fmt.Println("similarityScore: ", similarityScore)
 }
 
-func readAndProcessFromFile(inputLeft, inputRight *[]int) {
-	file, err := os.Open("input.txt")
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
+func processFileInput(inputLeft, inputRight *[]int, data [][]string) {
+	for _, v := range data {
+		lineArr := strings.Split(v[0], " ")
 
-	// Create a scanner to read line by line
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		// Print each line
-		line := strings.TrimSpace(scanner.Text())
-		// Compile a regular expression to match one or more spaces
-		re := regexp.MustCompile(`\s+`)
-
-		// Replace multiple spaces with a single space
-		line = re.ReplaceAllString(line, " ")
-
-		lineArr := strings.Split(line, " ")
 		num, err := strconv.Atoi(lineArr[0])
 		if err != nil {
 			panic(err)
@@ -57,16 +42,12 @@ func readAndProcessFromFile(inputLeft, inputRight *[]int) {
 		if err != nil {
 			panic(err)
 		}
-		*inputRight = append(*inputRight, num)
-	}
 
-	// Check for errors during scanning
-	if err := scanner.Err(); err != nil {
-		panic(err)
+		*inputRight = append(*inputRight, num)
 	}
 }
 
-func getDistance(inputLeft, inputRight []int) int {
+func getTotalDistance(inputLeft, inputRight []int) int {
 	distanceArr := make([]int, 0, len(inputLeft))
 
 	for i := range inputLeft {
@@ -84,8 +65,8 @@ func getDistance(inputLeft, inputRight []int) int {
 	return distance
 }
 
-func getSimilarity(inputLeft, inputRight []int) (similarityScore int) {
-	// left list: 3 and right list it is repeated 3 times -> 3*3 = 9
+func getSimilarityScore(inputLeft, inputRight []int) int {
+	similarityScore := 0
 	similarityMap := make(map[int]int)
 
 	for i := range inputLeft {
@@ -105,5 +86,5 @@ func getSimilarity(inputLeft, inputRight []int) (similarityScore int) {
 		similarityScore += key * value
 	}
 
-	return
+	return similarityScore
 }
