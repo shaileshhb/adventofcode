@@ -16,8 +16,8 @@ func main() {
 	// fmt.Println(reports)
 
 	safeReports := getSafeReportCount(reports)
-	fmt.Println("safe reports: ", safeReports)
-	// test()
+	dampenedReports := getDampenedReports(reports)
+	fmt.Printf("safe reports: %d, dampened reports: %d\n", safeReports, dampenedReports)
 }
 
 func processFileInput(input [][]string) [][]int {
@@ -84,9 +84,31 @@ func isReportSafe(report []int) bool {
 	return true
 }
 
-// func reportDampener() {
-// 	// tolerate a single bad level
+func getDampenedReports(reports [][]int) int {
+	safeReport := 0
 
-// 	report := []int{1, 3, 2, 4, 5}
+	for _, report := range reports {
+		count := reportDampener(report)
+		safeReport += count
+	}
 
-// }
+	return safeReport
+}
+
+func reportDampener(report []int) int {
+	// tolerate a single bad level
+	safeReport := 0
+
+	for i := range report {
+		dampedReport := make([]int, len(report))
+		copy(dampedReport, report)
+
+		dampedReport = append(dampedReport[:i], dampedReport[i+1:]...)
+		if isReportSafe(dampedReport) {
+			safeReport++
+			break
+		}
+	}
+
+	return safeReport
+}
