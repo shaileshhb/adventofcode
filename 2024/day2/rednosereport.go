@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"sort"
+	"math"
 	"strconv"
 	"strings"
 
@@ -14,8 +14,6 @@ func main() {
 
 	reports := processFileInput(input)
 	// fmt.Println(reports)
-
-	removeArrayWithDuplicates(reports)
 
 	safeReports := getSafeReportCount(reports)
 	fmt.Println("safe reports: ", safeReports)
@@ -47,28 +45,7 @@ func getSafeReportCount(reports [][]int) int {
 	safeReports := 0
 
 	for _, report := range reports {
-		isIncreasing := report[0] < report[1]
-		isSafe := true
-		for i := 1; i < len(report)-1; i++ {
-
-			if isIncreasing {
-				if report[i] < report[i+1] && (report[i+1]-report[i] >= 1) && (report[i+1]-report[i] <= 3) {
-					continue
-				}
-				isSafe = false
-				break
-			}
-
-			if report[i] > report[i+1] && (report[i]-report[i+1] >= 1) && (report[i]-report[i+1] <= 3) {
-				continue
-			}
-
-			isSafe = false
-			break
-		}
-
-		fmt.Println("reports", report, isSafe)
-		if isSafe {
+		if isReportSafe(report) {
 			safeReports++
 		}
 	}
@@ -76,65 +53,40 @@ func getSafeReportCount(reports [][]int) int {
 	return safeReports
 }
 
-func removeArrayWithDuplicates(reports [][]int) {
-	newReports := make([][]int, 0)
-
-	for _, report := range reports {
-		tempReport := make([]int, len(report))
-		copy(tempReport, report)
-
-		sort.Ints(tempReport)
-
-		isDuplicateFound := false
-		for i := 1; i < len(tempReport)-1; i++ {
-			if tempReport[i] == tempReport[i+1] {
-				isDuplicateFound = true
-				break
-			}
-		}
-
-		fmt.Println("== duplicate rports", tempReport, isDuplicateFound)
-
-		if !isDuplicateFound {
-			newReports = append(newReports, report)
-		}
+func isReportSafe(report []int) bool {
+	if report[0] == report[1] {
+		return false
 	}
-
-	fmt.Println("len", len(newReports), len(reports))
-}
-
-func test() {
-	// report := []int{7, 6, 4, 2, 1}
-	report := []int{17, 18, 22}
-	safeReports := 0
 
 	isIncreasing := report[0] < report[1]
-	isSafe := true
-	fmt.Println("isIncreasing", isIncreasing)
+	diff := int(math.Abs(float64(report[0] - report[1])))
+
+	if diff < 0 || diff > 3 {
+		return false
+	}
 
 	for i := 1; i < len(report)-1; i++ {
-		fmt.Println("value", report[i], report[i+1])
+		diff := int(math.Abs(float64(report[i] - report[i+1])))
 
 		if isIncreasing {
-			if report[i] < report[i+1] && (report[i+1]-report[i] >= 1) && (report[i+1]-report[i] <= 3) {
+			if report[i] < report[i+1] && (diff <= 3) {
 				continue
 			}
-			isSafe = false
-			fmt.Println("this has to break", i, report[i])
-			break
+			return false
 		}
 
-		if report[i] > report[i+1] && (report[i]-report[i+1] >= 1) && (report[i]-report[i+1] <= 3) {
+		if report[i] > report[i+1] && (diff <= 3) {
 			continue
 		}
-
-		isSafe = false
-		fmt.Println("breaking for i", i)
-		break
+		return false
 	}
 
-	if isSafe {
-		safeReports++
-	}
-	fmt.Println("safe reports", safeReports)
+	return true
 }
+
+// func reportDampener() {
+// 	// tolerate a single bad level
+
+// 	report := []int{1, 3, 2, 4, 5}
+
+// }
